@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RSA Encryption with Key Sharing</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Login Section -->
+    <div id="loginSection" class="container">
+        <div class="card login-card">
+            <div class="card__body">
+                <h1>RSA Encryption App</h1>
+                <form id="loginForm" class="form-group">
+                    <div class="form-group">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" id="username" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" id="password" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn--primary btn--full-width">Login</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="mainApp" class="container hidden">
+        <!-- Header -->
+        <div class="app-header">
+            <h1>RSA Encryption & Key Sharing</h1>
+            <div class="user-info">
+                <span>Welcome, <span id="currentUser"></span></span>
+                <button id="logoutBtn" class="btn btn--outline btn--sm">Logout</button>
+            </div>
+        </div>
+
+        <!-- Key Management Section -->
+        <div class="card">
+            <div class="card__header">
+                <h2>RSA Key Management</h2>
+            </div>
+            <div class="card__body">
+                <div class="key-status">
+                    <div class="status-indicator">
+                        <span class="status-label">Status:</span>
+                        <span id="keyStatus" class="status status--info">No Keys</span>
+                    </div>
+                    <div class="key-source">
+                        <span class="status-label">Source:</span>
+                        <span id="keySource">-</span>
+                    </div>
+                </div>
+                
+                <div class="key-actions">
+                    <button id="generateKeysBtn" class="btn btn--primary">Generate New Key Pair</button>
+                    <button id="importPublicKeyBtn" class="btn btn--secondary">Import Public Key</button>
+                    <button id="importPrivateKeyBtn" class="btn btn--secondary">Import Private Key</button>
+                    <button id="clearKeysBtn" class="btn btn--outline">Clear Keys</button>
+                </div>
+
+                <div class="export-actions">
+                    <button id="exportKeysBtn" class="btn btn--outline" disabled>Export Current Keys</button>
+                    <button id="exportPublicKeyBtn" class="btn btn--outline" disabled>Export Public Key Only</button>
+                    <button id="exportPrivateKeyBtn" class="btn btn--outline" disabled>Export Private Key Only</button>
+                </div>
+
+                <!-- File inputs (hidden) -->
+                <input type="file" id="publicKeyFileInput" accept=".pem,.txt" style="display: none;">
+                <input type="file" id="privateKeyFileInput" accept=".pem,.txt" style="display: none;">
+            </div>
+        </div>
+
+        <!-- Workflow Instructions -->
+        <div class="card">
+            <div class="card__header">
+                <h3>Key Sharing Workflows</h3>
+            </div>
+            <div class="card__body">
+                <div class="workflow-grid">
+                    <div class="workflow-item">
+                        <h4>🔐 To Send Encrypted Message</h4>
+                        <ol>
+                            <li>Import recipient's public key</li>
+                            <li>Enter your message in encryption section</li>
+                            <li>Click "Encrypt Text"</li>
+                            <li>Share the encrypted result</li>
+                        </ol>
+                    </div>
+                    <div class="workflow-item">
+                        <h4>🔓 To Decrypt Received Message</h4>
+                        <ol>
+                            <li>Import the private key (shared by sender)</li>
+                            <li>Paste encrypted message in decryption section</li>
+                            <li>Click "Decrypt Text"</li>
+                            <li>View the original message</li>
+                        </ol>
+                    </div>
+                    <div class="workflow-item">
+                        <h4>🔑 To Share Your Keys</h4>
+                        <ol>
+                            <li>Generate or use existing key pair</li>
+                            <li>Export public key for others to encrypt to you</li>
+                            <li>Export private key to enable others to decrypt your messages</li>
+                            <li>⚠️ Never share private keys unless necessary</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Encryption/Decryption Section -->
+        <div class="operations-grid">
+            <!-- Text Encryption -->
+            <div class="card">
+                <div class="card__header">
+                    <h3>Text Encryption</h3>
+                </div>
+                <div class="card__body">
+                    <div class="form-group">
+                        <label for="plaintext" class="form-label">Message to Encrypt</label>
+                        <textarea id="plaintext" class="form-control" rows="4" placeholder="Enter your message here..."></textarea>
+                    </div>
+                    <button id="encryptTextBtn" class="btn btn--primary">Encrypt Text</button>
+                    <div class="form-group">
+                        <label for="encryptedText" class="form-label">Encrypted Result</label>
+                        <textarea id="encryptedText" class="form-control" rows="4" readonly></textarea>
+                    </div>
+                    <button id="copyEncryptedBtn" class="btn btn--outline btn--sm" disabled>Copy to Clipboard</button>
+                </div>
+            </div>
+
+            <!-- Text Decryption -->
+            <div class="card">
+                <div class="card__header">
+                    <h3>Text Decryption</h3>
+                </div>
+                <div class="card__body">
+                    <div class="form-group">
+                        <label for="ciphertext" class="form-label">Encrypted Message</label>
+                        <textarea id="ciphertext" class="form-control" rows="4" placeholder="Paste encrypted message here..."></textarea>
+                    </div>
+                    <button id="decryptTextBtn" class="btn btn--primary">Decrypt Text</button>
+                    <div class="form-group">
+                        <label for="decryptedText" class="form-label">Decrypted Result</label>
+                        <textarea id="decryptedText" class="form-control" rows="4" readonly></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- File Operations -->
+        <div class="operations-grid">
+            <!-- File Encryption -->
+            <div class="card">
+                <div class="card__header">
+                    <h3>File Encryption</h3>
+                </div>
+                <div class="card__body">
+                    <div class="form-group">
+                        <label for="fileToEncrypt" class="form-label">Select File to Encrypt</label>
+                        <input type="file" id="fileToEncrypt" class="form-control">
+                    </div>
+                    <button id="encryptFileBtn" class="btn btn--primary">Encrypt File</button>
+                    <div id="encryptedFileResult" class="file-result hidden">
+                        <p>File encrypted successfully!</p>
+                        <button id="downloadEncryptedBtn" class="btn btn--secondary">Download Encrypted File</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- File Decryption -->
+            <div class="card">
+                <div class="card__header">
+                    <h3>File Decryption</h3>
+                </div>
+                <div class="card__body">
+                    <div class="form-group">
+                        <label for="fileToDecrypt" class="form-label">Select Encrypted File</label>
+                        <input type="file" id="fileToDecrypt" class="form-control">
+                    </div>
+                    <button id="decryptFileBtn" class="btn btn--primary">Decrypt File</button>
+                    <div id="decryptedFileResult" class="file-result hidden">
+                        <p>File decrypted successfully!</p>
+                        <button id="downloadDecryptedBtn" class="btn btn--secondary">Download Decrypted File</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Log -->
+        <div class="card">
+            <div class="card__header">
+                <h3>Activity Log</h3>
+                <button id="clearLogBtn" class="btn btn--outline btn--sm">Clear Log</button>
+            </div>
+            <div class="card__body">
+                <div id="activityLog" class="activity-log"></div>
+            </div>
+        </div>
+
+        <!-- Notifications -->
+        <div id="notifications" class="notifications"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
